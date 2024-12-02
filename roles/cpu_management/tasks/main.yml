@@ -1,0 +1,30 @@
+---
+- name: Disable C-states for CPUs
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT'
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="intel_idle.max_cstate=0"'
+
+      #  notify:
+      # - update grub
+
+- name: Change CPU governor to performance
+  command: cpupower frequency-set --governor performance
+
+- name: Display list of CPUs
+  command: lscpu
+  register: cpu_info
+
+- name: Display CPU info
+  debug:
+    var: cpu_info.stdout
+
+- name: Check Hyper-Threading (Intel/AMD)
+  command: lscpu | grep "Thread(s) per core"
+  register: threading_info
+  ignore_errors: true
+
+- name: Display Hyper-Threading Info
+  debug:
+    var: threading_info.stdout
+

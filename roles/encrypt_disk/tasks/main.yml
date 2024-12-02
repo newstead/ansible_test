@@ -1,0 +1,31 @@
+---
+- name: Encrypt the second disk
+  block:
+    - name: Check if the second disk is present
+      stat:
+        path: "{{ second_disk }}"
+      register: second_disk_stat
+
+    - name: Encrypt the second disk if not encrypted
+      command: cryptsetup luksFormat {{ second_disk }}
+      when: second_disk_stat.stat.exists
+
+    - name: Open the encrypted disk
+      command: cryptsetup luksOpen {{ second_disk }} {{ encrypted_disk_name }}
+      when: second_disk_stat.stat.exists
+
+    - name: Create a filesystem on the encrypted disk
+      filesystem:
+        fstype: ext4
+        dev: "/dev/mapper/{{ encrypted_disk_name }}"
+      when: second_disk_stat.stat.exists
+
+    - name: Mount the encrypted disk
+      mount:
+        path: "{{ mount_point }}"
+        src: "/dev/mapper/{{ encrypted_disk_name }}"
+        fstype: ext4
+        state: mounted
+      when: second_disk_stat.stat.exists
+  when: second_disk is defined
+

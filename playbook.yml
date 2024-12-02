@@ -1,0 +1,14 @@
+---
+- name: Prepare the server for operation
+  hosts: all
+  become: true
+  vars:
+    second_disk: "/dev/sdb"  # Adjust as necessary
+    encrypted_disk_name: "disk2"
+    mount_point: "/mnt/data"
+
+  roles:
+    - encrypt_disk
+    - cpu_management
+    - network_interface
+

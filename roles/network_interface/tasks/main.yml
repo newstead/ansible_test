@@ -1,0 +1,9 @@
+---
+- name: Rename the active network interface to "net0"
+  command: ip link set {{ ansible_default_ipv4.interface }} name net0
+  register: rename_output
+
+- name: Show renamed network interface
+  debug:
+    var: rename_output.stdout
+
